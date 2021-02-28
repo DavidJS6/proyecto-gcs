@@ -17,16 +17,16 @@ stages:
   - job: A1
     steps:
     - script:
-        yum -y update
-        yum -y install java-1.8.0-openjdk-devel
+        yum update -y
+        yum install -y java-1.8.0-openjdk-devel
         curl https://downloads.lightbend.com/scala/2.12.10/scala-2.12.10.rpm --output scala-2.12.10.rpm
-        yum -y install scala-2.12.10.rpm
+        yum install -y scala-2.12.10.rpm
         curl https://bintray.com/sbt/rpm/rpm | tee /etc/yum.repos.d/bintray-sbt-rpm.repo
-        yum -y install sbt
+        yum install -y sbt
         yum install -y git
         yum install -y which
         yum install -y yum-utils
-        yum -y install rpm-build
+        yum install -y rpm-build
         yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo
         yum install -y docker-ce docker-ce-cli containerd.io
 - stage: build_stage_B
@@ -39,7 +39,7 @@ stages:
         sbt compile
 - stage: test_stage_C
   jobs:
-  - job: A1
+  - job: C1
     steps:
     - script: 
         sbt test
@@ -57,14 +57,17 @@ stages:
   jobs:
   - job: F1
     steps:
-    - script: 
-        (Comando para copiar el archivo al servidor)
-        sudo systemctl stop gcs-app
-        sudo rpm -e gcs-app
-        sudo rpm -i gcs-app-2.8.x-1.noarch.rpm
-        sudo chown -R gcs-app /usr/share/gcs-app/
-        sudo chgrp -R gcs-app /usr/share/gcs-app/
-        (Realizar los cambios en el archivo de configuration localizado en /etc/gcs-app/application.conf)
-        sudo systemctl start gcs-app
+    - script:
+        ##(Comando para copiar el archivo al servidor)
+        #scp -i ~/.ssh/id_azure /gcs-app/target/rpm/RPMS/noarch/gcs-app-2.8.x-1.noarch.rpm azureuser@52.224.50.17:/home/azureuser
+        #ssh -i ~/.ssh/id_azure azureuser@ip_server
+        #sudo systemctl stop gcs-app
+        #sudo rpm -e gcs-app
+        #yum -y install java-1.8.0-openjdk-devel
+        #sudo rpm -i gcs-app-2.8.x-1.noarch.rpm
+        #sudo chown -R gcs-app /usr/share/gcs-app/
+        #sudo chgrp -R gcs-app /usr/share/gcs-app/
+        ##(Realizar los cambios en el archivo de configuration localizado en /etc/gcs-app/application.conf)
+        #sudo systemctl start gcs-app
 
 

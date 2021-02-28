@@ -26,7 +26,7 @@ stages:
         #curl https://downloads.lightbend.com/scala/2.12.10/scala-2.12.10.rpm --output scala-2.12.10.rpm
         curl https://downloads.lightbend.com/scala/2.12.2/scala-2.12.2.deb --output scala-2.12.2.deb
         #apt install -y scala-2.12.2.deb
-        dpkg -i scala-2.12.2.deb
+        sudo dpkg -i scala-2.12.2.deb
         #curl https://bintray.com/sbt/rpm/rpm | tee /etc/yum.repos.d/bintray-sbt-rpm.repo
         
         #apt install -y sbt

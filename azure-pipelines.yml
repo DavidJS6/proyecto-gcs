@@ -17,18 +17,40 @@ stages:
   - job: A1
     steps:
     - script:
-        yum update -y
-        yum install -y java-1.8.0-openjdk-devel
-        curl https://downloads.lightbend.com/scala/2.12.10/scala-2.12.10.rpm --output scala-2.12.10.rpm
-        yum install -y scala-2.12.10.rpm
-        curl https://bintray.com/sbt/rpm/rpm | tee /etc/yum.repos.d/bintray-sbt-rpm.repo
-        yum install -y sbt
-        yum install -y git
-        yum install -y which
-        yum install -y yum-utils
-        yum install -y rpm-build
-        yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo
-        yum install -y docker-ce docker-ce-cli containerd.io
+        #yum update -y
+        apt update -y
+        
+        #yum install -y java-1.8.0-openjdk-devel
+        apt install -y openjdk-8-jdk
+        
+        #curl https://downloads.lightbend.com/scala/2.12.10/scala-2.12.10.rpm --output scala-2.12.10.rpm
+        curl https://downloads.lightbend.com/scala/2.12.2/scala-2.12.2.deb --output scala-2.12.2.deb
+        #apt install -y scala-2.12.2.deb
+        dpkg -i scala-2.12.2.deb
+        #curl https://bintray.com/sbt/rpm/rpm | tee /etc/yum.repos.d/bintray-sbt-rpm.repo
+        
+        #apt install -y sbt
+        echo "deb https://dl.bintray.com/sbt/debian /" | sudo tee -a /etc/apt/sources.list.d/sbt.list
+        curl -sL "https://keyserver.ubuntu.com/pks/lookup?op=get&search=0x2EE0EA64E40A89B84B2DF73499E82A75642AC823" | sudo apt-key add
+        sudo apt-get update
+        sudo apt-get install sbt
+        
+        apt install -y git
+        
+        #yum install -y which
+        #yum install -y yum-utils
+        
+        #yum install -y rpm-build
+        apt install -y rpm
+        
+        #yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo
+        #yum install -y docker-ce docker-ce-cli containerd.io
+        ##apt-get update (No seria necesario)
+        #apt-get install -y apt-transport-https ca-certificates curl software-properties-common
+        #curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add –
+        #add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu  $(lsb_release -cs)  stable"
+        ##apt-get update (No seria necesario)
+        #apt-get install docker-ce
 - stage: build_stage_B
   jobs:
   - job: B1
@@ -43,9 +65,10 @@ stages:
     steps:
     - script: 
         sbt test
-        sudo systemctl start docker
-        sudo docker run -it -e POSTGRES_PASSWORD=gcs -e POSTGRES_USER=gcs -e POSTGRES_DB=gcs -p 127.0.0.1:5432:5432  postgres:9.5
-        sbt "project gcsAppIT" test
+        #(No se pudieron instalar las dependencias para ejecutar los siguientes comandos)
+        #sudo systemctl start docker
+        #sudo docker run -it -e POSTGRES_PASSWORD=gcs -e POSTGRES_USER=gcs -e POSTGRES_DB=gcs -p 127.0.0.1:5432:5432  postgres:9.5
+        #sbt "project gcsAppIT" test
 - stage: packaging_stage_D
   jobs:
   -  job: D1

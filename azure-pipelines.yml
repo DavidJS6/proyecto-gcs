@@ -18,10 +18,10 @@ stages:
     steps:
     - bash: |
         #yum update -y
-        apt update -y
+        sudo apt update -y
         
         #yum install -y java-1.8.0-openjdk-devel
-        apt install -y openjdk-8-jdk
+        sudo apt install -y openjdk-8-jdk
         
         #curl https://downloads.lightbend.com/scala/2.12.10/scala-2.12.10.rpm --output scala-2.12.10.rpm
         curl https://downloads.lightbend.com/scala/2.12.2/scala-2.12.2.deb --output scala-2.12.2.deb
@@ -35,13 +35,13 @@ stages:
         sudo apt-get update
         sudo apt-get install sbt
         
-        apt install -y git
+        sudo apt install -y git
         
         #yum install -y which
         #yum install -y yum-utils
         
         #yum install -y rpm-build
-        apt install -y rpm
+        sudo apt install -y rpm
         
         #yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo
         #yum install -y docker-ce docker-ce-cli containerd.io

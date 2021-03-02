@@ -53,8 +53,8 @@ stages:
         #sudo apt-get update
         #sudo apt-get install docker-ce
         
-        sudo apt update
-        sudo apt upgrade
+        #sudo apt update -y (Tal vez no sea necesario)
+        #sudo apt upgrade -y (Tal vez no sea necesario)
         sudo apt install docker.io
       displayName: Installing dependencies!
 - stage: build_stage_B

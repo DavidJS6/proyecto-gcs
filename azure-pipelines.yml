@@ -45,12 +45,17 @@ stages:
         
         #yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo
         #yum install -y docker-ce docker-ce-cli containerd.io
-        sudo apt-get update
-        sudo apt-get install -y apt-transport-https ca-certificates curl software-properties-common
-        curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add –
-        sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu  $(lsb_release -cs)  stable"
-        sudo apt-get update
-        sudo apt-get install docker-ce
+        
+        #sudo apt-get update
+        #sudo apt-get install -y apt-transport-https ca-certificates curl software-properties-common
+        #curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add –
+        #sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu  $(lsb_release -cs)  stable"
+        #sudo apt-get update
+        #sudo apt-get install docker-ce
+        
+        sudo apt update
+        sudo apt upgrade
+        sudo apt install docker.io
       displayName: Installing dependencies!
 - stage: build_stage_B
   jobs:
@@ -68,7 +73,7 @@ stages:
     - bash: |
         sbt test
         #(No se pudieron instalar las dependencias para ejecutar los siguientes comandos)
-        #sudo systemctl start docker
+        sudo systemctl start docker
         #sudo docker run -it -e POSTGRES_PASSWORD=gcs -e POSTGRES_USER=gcs -e POSTGRES_DB=gcs -p 127.0.0.1:5432:5432  postgres:9.5
         #sbt "project gcsAppIT" test
       displayName: Testing app!

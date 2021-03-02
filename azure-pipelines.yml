@@ -96,7 +96,8 @@ stages:
         ##scp -i ~/.ssh/id_azure /gcs-app/target/rpm/RPMS/noarch/gcs-app-2.8.x-1.noarch.rpm azureuser@52.224.50.17:/home/azureuser
         #scp -i ~/.ssh/id_azure /gcs-app/target/rpm/RPMS/noarch/gcs-app-2.8.x-1.noarch.rpm azureuser@52.224.50.17:/home/azureuser
         ##ssh -i ~/.ssh/id_azure azureuser@52.224.50.17
-        ssh -i $(webserverKey.secureFilePath) azureuser@52.224.50.17
+        #ssh -i $(webserverKey.secureFilePath) azureuser@52.224.50.17
+        ssh -i ~/.ssh azureuser@52.224.50.17
         #sudo systemctl stop gcs-app
         #sudo rpm -e gcs-app
         #yum -y install java-1.8.0-openjdk-devel

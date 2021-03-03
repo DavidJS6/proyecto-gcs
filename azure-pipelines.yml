@@ -12,68 +12,6 @@ pool:
 #container: centos:7
 
 stages:
-- stage: creation_test_stage_A
-  jobs:
-  - job: A1
-    steps:
-    - bash: |
-        sudo touch /home/vsts/sampletouchfile.txt
-        ls /home/vsts/
-        #sudo chown root:root ~/sampletouchfile.txt
-        #sudo chmod a+r ~/sampletouchfile.txt
-        #echo "This is a text" > ~/sampletouchfile.txt
-      displayName: Creating file!
-- stage: copy_test_stage_A
-  jobs:
-  - job: A1
-    steps:
-    - task: CopyFilesOverSSH@0
-      inputs:
-        sshEndpoint: webserver-connection
-        sourceFolder: /home/vsts/
-        contents: sampletouchfile.txt 
-        targetFolder: /home/azureuser
-        #cleanTargetFolder: false # Optional
-        #overwrite: true # Optional
-        #failOnEmptySource: false # Optional
-        #flattenFolders: false # Optional
-- stage: ssh_commands_test_stage_A
-  jobs:
-  - job: A1
-    steps:
-    - task: SSH@0
-      inputs:
-        sshEndpoint: webserver-connection
-        #runOptions: 'commands' # Options: commands, script, inline
-        runOptions: 'inline'
-        #commands: # Required when runOptions == Commands
-        #scriptPath: # Required when runOptions == Script
-        #inline: # Required when runOptions == Inline
-        inline: |
-            ls
-            echo /home/azureuser/sampletouchfile.txt 
-            pwd
-        #interpreterCommand: # Used when runOptions == Inline
-        #args: # Optional
-        #failOnStdErr: true # Optional
-
-- stage: testing_stage_X
-  jobs:
-  - job: X1
-    steps:
-    - task: DownloadSecureFile@1
-      name: webserverKey
-      displayName: 'Download SSH Key'
-      inputs:
-        secureFile: 'webserver-test_key.pem'
-    
-    - bash: |
-        #sudo chown root:root $(webserverKey.secureFilePath)
-        #sudo chmod a+r $(webserverKey.secureFilePath)
-        #ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -i $(webserverKey.secureFilePath) azureuser@52.224.50.17
-        #logout
-      displayName: Deploying app to production!
-
 - stage: provisioning_stage_A
   jobs:
   - job: A1
@@ -131,8 +69,8 @@ stages:
     steps:
     - bash: |
         sbt test
-        #(No se pudieron instalar las dependencias para ejecutar los siguientes comandos)
         sudo systemctl start docker
+        #(Estos dos comandos deben ser ejecutados en una consola a parte)
         #sudo docker run -it -e POSTGRES_PASSWORD=gcs -e POSTGRES_USER=gcs -e POSTGRES_DB=gcs -p 127.0.0.1:5432:5432  postgres:9.5
         #sbt "project gcsAppIT" test
       displayName: Testing app!
@@ -143,32 +81,44 @@ stages:
      steps: 
      - bash: |
         sbt rpm:packageBin
-       displayName: Packaging app!
-- stage: deploy_stage_F
+       displayName: Packaging app!      
+- stage: copy_test_stage_A
   jobs:
-  - job: F1
+  - job: A1
     steps:
-    - task: DownloadSecureFile@1
-      name: webserverKey
-      displayName: 'Download SSH Key'
+    - task: CopyFilesOverSSH@0
       inputs:
-        secureFile: 'webserver-test_key.pem'
-    
-    - bash: |
-        ##scp -i ~/.ssh/id_azure /gcs-app/target/rpm/RPMS/noarch/gcs-app-2.8.x-1.noarch.rpm azureuser@52.224.50.17:/home/azureuser
-        #scp -i ~/.ssh/id_azure /gcs-app/target/rpm/RPMS/noarch/gcs-app-2.8.x-1.noarch.rpm azureuser@52.224.50.17:/home/azureuser
-        ##ssh -i ~/.ssh/id_azure azureuser@52.224.50.17
-        ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -i $(webserverKey.secureFilePath) azureuser@52.224.50.17
-        #ssh -i ~/.ssh azureuser@52.224.50.17
-        #sudo systemctl stop gcs-app
-        #sudo rpm -e gcs-app
-        #yum -y install java-1.8.0-openjdk-devel
-        #sudo rpm -i gcs-app-2.8.x-1.noarch.rpm
-        #sudo chown -R gcs-app /usr/share/gcs-app/
-        #sudo chgrp -R gcs-app /usr/share/gcs-app/
-        ##(Realizar los cambios en el archivo de configuration localizado en /etc/gcs-app/application.conf)
-        #sudo systemctl start gcs-app
-        logout
-      displayName: Deploying app to production!
+        sshEndpoint: webserver-connection
+        sourceFolder: /gcs-app/target/rpm/RPMS/noarch/
+        contents: gcs-app-2.8.x-1.noarch.rpm
+        targetFolder: /home/azureuser
+        #cleanTargetFolder: false # Optional
+        #overwrite: true # Optional
+        #failOnEmptySource: false # Optional
+        #flattenFolders: false # Optional
+- stage: ssh_commands_test_stage_A
+  jobs:
+  - job: A1
+    steps:
+    - task: SSH@0
+      inputs:
+        sshEndpoint: webserver-connection
+        #runOptions: 'commands' # Options: commands, script, inline
+        runOptions: 'inline'
+        #commands: # Required when runOptions == Commands
+        #scriptPath: # Required when runOptions == Script
+        #inline: # Required when runOptions == Inline
+        inline: |
+            sudo systemctl stop gcs-app
+            sudo rpm -e gcs-app
+            sudo apt-get install -y java-1.8.0-openjdk-devel
+            sudo rpm -i gcs-app-2.8.x-1.noarch.rpm
+            sudo chown -R gcs-app /usr/share/gcs-app/
+            sudo chgrp -R gcs-app /usr/share/gcs-app/
+            sudo chef-client --local-mode -j atributos.json
+            sudo systemctl start gcs-app
+        #interpreterCommand: # Used when runOptions == Inline
+        #args: # Optional
+        #failOnStdErr: true # Optional
 
 

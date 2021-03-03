@@ -1,0 +1,174 @@
+# Starter pipeline
+# Start with a minimal pipeline that you can customize to build and deploy your code.
+# Add steps that build, run tests, deploy, and more:
+# https://aka.ms/yaml
+
+trigger:
+- master
+
+pool:
+  vmImage: ubuntu-latest
+  
+#container: centos:7
+
+stages:
+- stage: creation_test_stage_A
+  jobs:
+  - job: A1
+    steps:
+    - bash: |
+        sudo touch /home/vsts/sampletouchfile.txt
+        ls /home/vsts/
+        #sudo chown root:root ~/sampletouchfile.txt
+        #sudo chmod a+r ~/sampletouchfile.txt
+        #echo "This is a text" > ~/sampletouchfile.txt
+      displayName: Creating file!
+- stage: copy_test_stage_A
+  jobs:
+  - job: A1
+    steps:
+    - task: CopyFilesOverSSH@0
+      inputs:
+        sshEndpoint: webserver-connection
+        sourceFolder: /home/vsts/
+        contents: sampletouchfile.txt 
+        targetFolder: /home/azureuser
+        #cleanTargetFolder: false # Optional
+        #overwrite: true # Optional
+        #failOnEmptySource: false # Optional
+        #flattenFolders: false # Optional
+- stage: ssh_commands_test_stage_A
+  jobs:
+  - job: A1
+    steps:
+    - task: SSH@0
+      inputs:
+        sshEndpoint: webserver-connection
+        #runOptions: 'commands' # Options: commands, script, inline
+        runOptions: 'inline'
+        #commands: # Required when runOptions == Commands
+        #scriptPath: # Required when runOptions == Script
+        #inline: # Required when runOptions == Inline
+        inline: |
+            ls
+            echo /home/azureuser/sampletouchfile.txt 
+            pwd
+        #interpreterCommand: # Used when runOptions == Inline
+        #args: # Optional
+        #failOnStdErr: true # Optional
+
+- stage: testing_stage_X
+  jobs:
+  - job: X1
+    steps:
+    - task: DownloadSecureFile@1
+      name: webserverKey
+      displayName: 'Download SSH Key'
+      inputs:
+        secureFile: 'webserver-test_key.pem'
+    
+    - bash: |
+        #sudo chown root:root $(webserverKey.secureFilePath)
+        #sudo chmod a+r $(webserverKey.secureFilePath)
+        #ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -i $(webserverKey.secureFilePath) azureuser@52.224.50.17
+        #logout
+      displayName: Deploying app to production!
+
+- stage: provisioning_stage_A
+  jobs:
+  - job: A1
+    steps:
+    - bash: |
+        #yum update -y
+        sudo apt update -y
+        
+        #yum install -y java-1.8.0-openjdk-devel
+        sudo apt install -y openjdk-8-jdk
+        
+        #curl https://downloads.lightbend.com/scala/2.12.10/scala-2.12.10.rpm --output scala-2.12.10.rpm
+        curl https://downloads.lightbend.com/scala/2.12.2/scala-2.12.2.deb --output scala-2.12.2.deb
+        #apt install -y scala-2.12.2.deb
+        sudo dpkg -i scala-2.12.2.deb
+        #curl https://bintray.com/sbt/rpm/rpm | tee /etc/yum.repos.d/bintray-sbt-rpm.repo
+        
+        #yum install -y sbt
+        echo "deb https://dl.bintray.com/sbt/debian /" | sudo tee -a /etc/apt/sources.list.d/sbt.list
+        curl -sL "https://keyserver.ubuntu.com/pks/lookup?op=get&search=0x2EE0EA64E40A89B84B2DF73499E82A75642AC823" | sudo apt-key add
+        sudo apt-get update
+        sudo apt-get install sbt
+        
+        sudo apt install -y git
+        
+        #yum install -y which
+        #yum install -y yum-utils
+        
+        #yum install -y rpm-build
+        sudo apt install -y rpm
+        
+        #yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo
+        #yum install -y docker-ce docker-ce-cli containerd.io
+        
+        sudo apt update -y
+        sudo apt install -y apt-transport-https ca-certificates curl software-properties-common
+        curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
+        sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu focal stable"
+        sudo apt update -y
+        apt-cache policy docker-ce
+        sudo apt install -y docker-ce
+      displayName: Installing dependencies!
+- stage: build_stage_B
+  jobs:
+  - job: B1
+    displayName: initial_job
+    steps: 
+    - bash: |
+        cd proyecto-gcs
+        sbt compile
+      displayName: Compiling project!
+- stage: test_stage_C
+  jobs:
+  - job: C1
+    steps:
+    - bash: |
+        sbt test
+        #(No se pudieron instalar las dependencias para ejecutar los siguientes comandos)
+        sudo systemctl start docker
+        #sudo docker run -it -e POSTGRES_PASSWORD=gcs -e POSTGRES_USER=gcs -e POSTGRES_DB=gcs -p 127.0.0.1:5432:5432  postgres:9.5
+        #sbt "project gcsAppIT" test
+      displayName: Testing app!
+- stage: packaging_stage_D
+  jobs:
+  -  job: D1
+     displayName: initial_job
+     steps: 
+     - bash: |
+        sbt rpm:packageBin
+       displayName: Packaging app!
+- stage: deploy_stage_F
+  jobs:
+  - job: F1
+    steps:
+    - task: DownloadSecureFile@1
+      name: webserverKey
+      displayName: 'Download SSH Key'
+      inputs:
+        secureFile: 'webserver-test_key.pem'
+    
+    - bash: |
+        ##scp -i ~/.ssh/id_azure /gcs-app/target/rpm/RPMS/noarch/gcs-app-2.8.x-1.noarch.rpm azureuser@52.224.50.17:/home/azureuser
+        #scp -i ~/.ssh/id_azure /gcs-app/target/rpm/RPMS/noarch/gcs-app-2.8.x-1.noarch.rpm azureuser@52.224.50.17:/home/azureuser
+        ##ssh -i ~/.ssh/id_azure azureuser@52.224.50.17
+        ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -i $(webserverKey.secureFilePath) azureuser@52.224.50.17
+        #ssh -i ~/.ssh azureuser@52.224.50.17
+        #sudo systemctl stop gcs-app
+        #sudo rpm -e gcs-app
+        #yum -y install java-1.8.0-openjdk-devel
+        #sudo rpm -i gcs-app-2.8.x-1.noarch.rpm
+        #sudo chown -R gcs-app /usr/share/gcs-app/
+        #sudo chgrp -R gcs-app /usr/share/gcs-app/
+        ##(Realizar los cambios en el archivo de configuration localizado en /etc/gcs-app/application.conf)
+        #sudo systemctl start gcs-app
+        logout
+      displayName: Deploying app to production!
+
+

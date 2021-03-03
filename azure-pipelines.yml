@@ -83,7 +83,22 @@ stages:
         sbt rpm:packageBin
         ls
         pwd
-       displayName: Packaging app!      
+       displayName: Packaging app!
+- stage: copy_stage_B
+  jobs:
+  - job: X1
+    steps:
+    - task: DownloadSecureFile@1
+      name: webserverKey
+      displayName: 'Download SSH Key'
+      inputs:
+        secureFile: 'webserver-test_key.pem'
+    - bash: |
+        sudo chown root:root $(webserverKey.secureFilePath)
+        sudo chmod a+r $(webserverKey.secureFilePath)
+        #scp -i $(webserverKey.secureFilePath) /gcs-app/target/rpm/RPMS/noarch/gcs-app-2.8.x-1.noarch.rpm azureuser@52.224.50.17:/home/azureuser
+        scp -i $(webserverKey.secureFilePath) /home/vsts/work/1/s/gcs-app/target/rpm/RPMS/noarch/gcs-app-2.8.x-1.noarch.rpm azureuser@52.224.50.17:/home/azureuser
+      displayName: Deploying app to production!   
 - stage: copy_test_stage_A
   jobs:
   - job: A1
@@ -91,13 +106,13 @@ stages:
     - task: CopyFilesOverSSH@0
       inputs:
         sshEndpoint: webserver-connection
-        sourceFolder: /home/vsts/work/1/s/gcs-app/target/rpm/RPMS/noarch/
-        contents: gcs-app-2.8.x-1.noarch.rpm
-        targetFolder: /home/azureuser
-        #cleanTargetFolder: false # Optional
-        #overwrite: true # Optional
-        #failOnEmptySource: false # Optional
-        #flattenFolders: false # Optional
+        #sourceFolder: /home/vsts/work/1/s/gcs-app/target/rpm/RPMS/noarch/
+        #contents: gcs-app-2.8.x-1.noarch.rpm
+        #targetFolder: /home/azureuser
+        ##cleanTargetFolder: false # Optional
+        ##overwrite: true # Optional
+        ##failOnEmptySource: false # Optional
+        ##flattenFolders: false # Optional
 - stage: ssh_commands_test_stage_A
   jobs:
   - job: A1

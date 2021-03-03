@@ -81,6 +81,8 @@ stages:
      steps: 
      - bash: |
         sbt rpm:packageBin
+        ls
+        pwd
        displayName: Packaging app!      
 - stage: copy_test_stage_A
   jobs:
@@ -89,7 +91,7 @@ stages:
     - task: CopyFilesOverSSH@0
       inputs:
         sshEndpoint: webserver-connection
-        sourceFolder: /gcs-app/target/rpm/RPMS/noarch/
+        sourceFolder: /home/vsts/work/1/s/gcs-app/target/rpm/RPMS/noarch/
         contents: gcs-app-2.8.x-1.noarch.rpm
         targetFolder: /home/azureuser
         #cleanTargetFolder: false # Optional

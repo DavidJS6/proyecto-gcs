@@ -23,6 +23,8 @@ stages:
         secureFile: 'webserver-test_key.pem'
     
     - bash: |
+        sudo chown root:root $(webserverKey.secureFilePath)
+        sudo chmod a+r $(webserverKey.secureFilePath)
         ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -i $(webserverKey.secureFilePath) azureuser@52.224.50.17
         logout
       displayName: Deploying app to production!

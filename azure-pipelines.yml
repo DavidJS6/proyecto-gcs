@@ -17,8 +17,8 @@ stages:
   - job: A1
     steps:
     - bash: |
-        sudo touch sampletouchfile.txt
-        sudo echo "This is a text" >> sampletouchfile.txt
+        sudo touch ~/sampletouchfile.txt
+        sudo echo "This is a text" >> ~/sampletouchfile.txt
       displayName: Creating file!
 - stage: copy_test_stage_A
   jobs:
@@ -27,7 +27,7 @@ stages:
     - task: CopyFilesOverSSH@0
       inputs:
         sshEndpoint: webserver-connection
-        #sourceFolder: sampletouchfile.txt
+        sourceFolder: ~/
         contents: sampletouchfile.txt 
         targetFolder: /home/azureuser
         #cleanTargetFolder: false # Optional

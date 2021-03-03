@@ -19,9 +19,9 @@ stages:
     - bash: |
         sudo touch ~/sampletouchfile.txt
         ls ~/
-        sudo chown root:root ~/sampletouchfile.txt
-        sudo chmod a+r ~/sampletouchfile.txt
-        echo "This is a text" > ~/sampletouchfile.txt
+        #sudo chown root:root ~/sampletouchfile.txt
+        #sudo chmod a+r ~/sampletouchfile.txt
+        #echo "This is a text" > ~/sampletouchfile.txt
       displayName: Creating file!
 - stage: copy_test_stage_A
   jobs:

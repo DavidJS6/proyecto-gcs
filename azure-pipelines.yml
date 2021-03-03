@@ -17,8 +17,8 @@ stages:
   - job: A1
     steps:
     - bash: |
-        sudo touch ~/sampletouchfile.txt
-        ls ~/
+        sudo touch /home/vsts/sampletouchfile.txt
+        ls /home/vsts/
         #sudo chown root:root ~/sampletouchfile.txt
         #sudo chmod a+r ~/sampletouchfile.txt
         #echo "This is a text" > ~/sampletouchfile.txt
@@ -30,7 +30,7 @@ stages:
     - task: CopyFilesOverSSH@0
       inputs:
         sshEndpoint: webserver-connection
-        sourceFolder: ~/
+        sourceFolder: /home/vsts/
         contents: sampletouchfile.txt 
         targetFolder: /home/azureuser
         #cleanTargetFolder: false # Optional

@@ -12,6 +12,48 @@ pool:
 #container: centos:7
 
 stages:
+- stage: creation_test_stage_A
+  jobs:
+  - job: A1
+    steps:
+    - bash: |
+        sudo touch sampletouchfile.txt
+        sudo echo "This is a text" >> sampletouchfile.txt
+      displayName: Creating file!
+- stage: copy_test_stage_A
+  jobs:
+  - job: A1
+    steps:
+    - task: CopyFilesOverSSH@0
+      inputs:
+        sshEndpoint: webserver-connection
+        #sourceFolder: sampletouchfile.txt
+        contents: sampletouchfile.txt 
+        targetFolder: /home/azureuser
+        #cleanTargetFolder: false # Optional
+        #overwrite: true # Optional
+        #failOnEmptySource: false # Optional
+        #flattenFolders: false # Optional
+- stage: ssh_commands_test_stage_A
+  jobs:
+  - job: A1
+    steps:
+    - task: SSH@0
+      inputs:
+        sshEndpoint: webserver-connection
+        #runOptions: 'commands' # Options: commands, script, inline
+        runOptions: 'inline'
+        #commands: # Required when runOptions == Commands
+        #scriptPath: # Required when runOptions == Script
+        #inline: # Required when runOptions == Inline
+        inline: |
+            ls
+            echo sampletouchfile.txt 
+            pdw
+        #interpreterCommand: # Used when runOptions == Inline
+        #args: # Optional
+        #failOnStdErr: true # Optional
+
 - stage: testing_stage_X
   jobs:
   - job: X1
@@ -23,10 +65,10 @@ stages:
         secureFile: 'webserver-test_key.pem'
     
     - bash: |
-        sudo chown root:root $(webserverKey.secureFilePath)
-        sudo chmod a+r $(webserverKey.secureFilePath)
-        ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -i $(webserverKey.secureFilePath) azureuser@52.224.50.17
-        logout
+        #sudo chown root:root $(webserverKey.secureFilePath)
+        #sudo chmod a+r $(webserverKey.secureFilePath)
+        #ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -i $(webserverKey.secureFilePath) azureuser@52.224.50.17
+        #logout
       displayName: Deploying app to production!
 
 - stage: provisioning_stage_A

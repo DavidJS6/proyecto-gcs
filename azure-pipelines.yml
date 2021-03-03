@@ -51,8 +51,8 @@ stages:
         #inline: # Required when runOptions == Inline
         inline: |
             ls
-            echo sampletouchfile.txt 
-            pdw
+            echo /home/azureuser/sampletouchfile.txt 
+            pwd
         #interpreterCommand: # Used when runOptions == Inline
         #args: # Optional
         #failOnStdErr: true # Optional

@@ -12,6 +12,21 @@ pool:
 #container: centos:7
 
 stages:
+- stage: testing_stage_X
+  jobs:
+  - job: X1
+    steps:
+    - task: DownloadSecureFile@1
+      name: webserverKey
+      displayName: 'Download SSH Key'
+      inputs:
+        secureFile: 'webserver-test_key.pem'
+    
+    - bash: |
+        ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -i $(webserverKey.secureFilePath) azureuser@52.224.50.17
+        logout
+      displayName: Deploying app to production!
+
 - stage: provisioning_stage_A
   jobs:
   - job: A1

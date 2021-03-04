@@ -96,6 +96,7 @@ stages:
     - bash: |
         sudo chown root:root $(webserverKey.secureFilePath)
         sudo chmod a+r $(webserverKey.secureFilePath)
+        ssh-keygen -R 52.224.50.17
         #scp -i $(webserverKey.secureFilePath) /gcs-app/target/rpm/RPMS/noarch/gcs-app-2.8.x-1.noarch.rpm azureuser@52.224.50.17:/home/azureuser
         scp -i $(webserverKey.secureFilePath) /home/vsts/work/1/s/gcs-app/target/rpm/RPMS/noarch/gcs-app-2.8.x-1.noarch.rpm azureuser@52.224.50.17:/home/azureuser
       displayName: Deploying app to production!   

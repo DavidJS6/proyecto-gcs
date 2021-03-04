@@ -131,12 +131,13 @@ stages:
         inline: |
             sudo systemctl stop gcs-app
             sudo rpm -e gcs-app
-            #sudo yum install -y java-1.8.0-openjdk-devel
+            #sudo yum install -y java-1.8.0-openjk-devel
             sudo rpm -i gcs-app-2.8.x-1.noarch.rpm
             sudo chown -R gcs-app /usr/share/gcs-app/
             sudo chgrp -R gcs-app /usr/share/gcs-app/
             sudo chef-client --local-mode -j atributos.json
             sudo systemctl start gcs-app
+            sudo systemctl restart gcs-app
         #interpreterCommand: # Used when runOptions == Inline
         #args: # Optional
         #failOnStdErr: true # Optional

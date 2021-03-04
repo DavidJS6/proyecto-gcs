@@ -12,6 +12,31 @@ pool:
 #container: centos:7
 
 stages:
+- stage: creation_test_stage_A
+  jobs:
+  - job: A1
+    steps:
+    - bash: |
+        sudo touch /home/vsts/sampletouchfile.txt
+        ls /home/vsts/
+        #sudo chown root:root ~/sampletouchfile.txt
+        #sudo chmod a+r ~/sampletouchfile.txt
+        #echo "This is a text" > ~/sampletouchfile.txt
+      displayName: Creating file!
+- stage: copy_test_stage_A
+  jobs:
+  - job: A1
+    steps:
+    - task: CopyFilesOverSSH@0
+      inputs:
+        sshEndpoint: webserver-connection
+        sourceFolder: /home/vsts/
+        contents: sampletouchfile.txt 
+        targetFolder: /home/azureuser
+        #cleanTargetFolder: false # Optional
+        #overwrite: true # Optional
+        #failOnEmptySource: false # Optional
+        #flattenFolders: false # Optional
 - stage: provisioning_stage_A
   jobs:
   - job: A1

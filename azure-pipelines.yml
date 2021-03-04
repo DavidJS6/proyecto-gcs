@@ -137,6 +137,7 @@ stages:
             sudo chgrp -R gcs-app /usr/share/gcs-app/
             sudo chef-client --local-mode -j atributos.json
             sudo systemctl start gcs-app
+            sudo rm /usr/share/gcs-app/RUNNING_PID
             sudo systemctl restart gcs-app
         #interpreterCommand: # Used when runOptions == Inline
         #args: # Optional

@@ -71,8 +71,14 @@ stages:
         sbt test
         sudo systemctl start docker
         #(Estos dos comandos deben ser ejecutados en una consola a parte)
-        #sudo docker run -it -e POSTGRES_PASSWORD=gcs -e POSTGRES_USER=gcs -e POSTGRES_DB=gcs -p 127.0.0.1:5432:5432  postgres:9.5
+        #nohup sudo docker run -it -e POSTGRES_PASSWORD=gcs -e POSTGRES_USER=gcs -e POSTGRES_DB=gcs -p 127.0.0.1:5432:5432  postgres:9.5
+        #timeout 90s bash -c 'until docker exec $YOUR_DOCKER_CONTAINER_NAME pg_isready ; do sleep 5 ; done'
+        #sh /proyecto-gcs/script.sh
         #sbt "project gcsAppIT" test
+        sudo docker run -d --name postgres-docker -e POSTGRES_PASSWORD=gcs -e POSTGRES_USER=gcs -e POSTGRES_DB=gcs -p 127.0.0.1:5432:5432 postgres:9.5
+        sudo timeout 90s bash -c 'until docker exec postgres-docker pg_isready; do sleep 5; done'
+        cd proyecto-gcs
+        sbt "project gcsAppIT" test
       displayName: Testing app!
 - stage: packaging_stage_D
   jobs:
@@ -81,10 +87,7 @@ stages:
      steps: 
      - bash: |
         sbt rpm:packageBin
-        pwd
-        ls
         cp /gcs-app/target/rpm/RPMS/noarch/gcs-app-2.8.x-1.noarch.rpm /home/vsts/gcs-app-2.8.x-1.noarch.rpm
-        ls
        displayName: Packaging app!
 - stage: deploy_stage_E
   jobs:

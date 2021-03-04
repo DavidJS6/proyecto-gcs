@@ -109,7 +109,7 @@ stages:
         ls
         pwd
        displayName: Packaging app!
-- stage: deploy_stage_B
+- stage: deploy_stage_E
   jobs:
   - job: X1
     steps:
@@ -125,7 +125,7 @@ stages:
         #scp -i $(webserverKey.secureFilePath) /gcs-app/target/rpm/RPMS/noarch/gcs-app-2.8.x-1.noarch.rpm azureuser@52.224.50.17:/home/azureuser
         scp -i $(webserverKey.secureFilePath) /home/vsts/work/1/s/gcs-app/target/rpm/RPMS/noarch/gcs-app-2.8.x-1.noarch.rpm azureuser@52.224.50.17:/home/azureuser
       displayName: Deploying app to production!   
-- stage: copy_test_stage_A
+- stage: copy_test_stage_F
   jobs:
   - job: A1
     steps:
@@ -139,7 +139,7 @@ stages:
         ##overwrite: true # Optional
         ##failOnEmptySource: false # Optional
         ##flattenFolders: false # Optional
-- stage: ssh_commands_test_stage_A
+- stage: ssh_commands_test_stage_G
   jobs:
   - job: A1
     steps:

@@ -87,25 +87,9 @@ stages:
      steps: 
      - bash: |
         sbt rpm:packageBin
-        cp /gcs-app/target/rpm/RPMS/noarch/gcs-app-2.8.x-1.noarch.rpm /home/vsts/gcs-app-2.8.x-1.noarch.rpm
-       displayName: Packaging app!
+        cp /home/vsts/work/1/s/gcs-app/target/rpm/RPMS/noarch/gcs-app-2.8.x-1.noarch.rpm /home/vsts/gcs-app-2.8.x-1.noarch.rpm
+       displayName: Packaging app! 
 - stage: deploy_stage_E
-  jobs:
-  - job: X1
-    steps:
-    - task: DownloadSecureFile@1
-      name: webserverKey
-      displayName: 'Download SSH Key'
-      inputs:
-        secureFile: 'webserver-test_key.pem'
-    - bash: |
-        #sudo chown root:root $(webserverKey.secureFilePath)
-        #sudo chmod a+r $(webserverKey.secureFilePath)
-        #ssh-keygen -R 52.224.50.17
-        ##scp -i $(webserverKey.secureFilePath) /gcs-app/target/rpm/RPMS/noarch/gcs-app-2.8.x-1.noarch.rpm azureuser@52.224.50.17:/home/azureuser
-        #scp -i $(webserverKey.secureFilePath) /home/vsts/work/1/s/gcs-app/target/rpm/RPMS/noarch/gcs-app-2.8.x-1.noarch.rpm #azureuser@52.224.50.17:/home/azureuser
-      displayName: Deploying app to production!   
-- stage: deploy_stage_E_2
   jobs:
   - job: A1
     steps:

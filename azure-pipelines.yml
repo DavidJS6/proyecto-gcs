@@ -109,7 +109,7 @@ stages:
         ls
         pwd
        displayName: Packaging app!
-- stage: copy_stage_B
+- stage: deploy_stage_B
   jobs:
   - job: X1
     steps:

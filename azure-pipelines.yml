@@ -54,8 +54,9 @@ stages:
         sudo apt install -y docker-ce
         
         #yum install -y java-1.8.0-openjdk-devel
-        #sudo apt install -y openjdk-8-jdk
-        sudo apt install -y openjdk-8-jdk-headless=8u275-b01
+        #sudo apt install -y openjdk-8-jdk-headless=8u275-b01
+        sudo apt-get purge -y --auto-remove openjdk*
+        sudo apt install -y openjdk-8-jdk
         
         echo =====================================
         java -version

@@ -87,7 +87,11 @@ stages:
      steps: 
      - bash: |
         sbt rpm:packageBin
-        cp /home/vsts/work/1/s/gcs-app/target/rpm/RPMS/noarch/gcs-app-2.8.x-1.noarch.rpm /home/vsts/gcs-app-2.8.x-1.noarch.rpm
+        #sudo cp /home/vsts/work/1/s/gcs-app/target/rpm/RPMS/noarch/gcs-app-2.8.x-1.noarch.rpm /home/vsts/gcs-app-2.8.x-1.noarch.rpm
+        ls
+        pwd
+        sudo cp gcs-app/target/rpm/RPMS/noarch/gcs-app-2.8.x-1.noarch.rpm /home/vsts/gcs-app-2.8.x-1.noarch.rpm
+        ll /home/vsts/
        displayName: Packaging app! 
 - stage: deploy_stage_E
   jobs:

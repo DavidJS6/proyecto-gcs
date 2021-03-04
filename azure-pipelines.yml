@@ -12,31 +12,6 @@ pool:
 #container: centos:7
 
 stages:
-- stage: creation_test_stage_A
-  jobs:
-  - job: A1
-    steps:
-    - bash: |
-        sudo touch /home/vsts/sampletouchfile.txt
-        ls /home/vsts/
-        #sudo chown root:root ~/sampletouchfile.txt
-        #sudo chmod a+r ~/sampletouchfile.txt
-        #echo "This is a text" > ~/sampletouchfile.txt
-      displayName: Creating file!
-- stage: copy_test_stage_A
-  jobs:
-  - job: A1
-    steps:
-    - task: CopyFilesOverSSH@0
-      inputs:
-        sshEndpoint: webserver-connection
-        sourceFolder: /home/vsts/
-        contents: sampletouchfile.txt 
-        targetFolder: /home/azureuser
-        #cleanTargetFolder: false # Optional
-        #overwrite: true # Optional
-        #failOnEmptySource: false # Optional
-        #flattenFolders: false # Optional
 - stage: provisioning_stage_A
   jobs:
   - job: A1
@@ -106,8 +81,10 @@ stages:
      steps: 
      - bash: |
         sbt rpm:packageBin
-        ls
         pwd
+        ls
+        cp /gcs-app/target/rpm/RPMS/noarch/gcs-app-2.8.x-1.noarch.rpm /home/vsts/gcs-app-2.8.x-1.noarch.rpm
+        ls
        displayName: Packaging app!
 - stage: deploy_stage_E
   jobs:
@@ -119,27 +96,27 @@ stages:
       inputs:
         secureFile: 'webserver-test_key.pem'
     - bash: |
-        sudo chown root:root $(webserverKey.secureFilePath)
-        sudo chmod a+r $(webserverKey.secureFilePath)
-        ssh-keygen -R 52.224.50.17
-        #scp -i $(webserverKey.secureFilePath) /gcs-app/target/rpm/RPMS/noarch/gcs-app-2.8.x-1.noarch.rpm azureuser@52.224.50.17:/home/azureuser
-        scp -i $(webserverKey.secureFilePath) /home/vsts/work/1/s/gcs-app/target/rpm/RPMS/noarch/gcs-app-2.8.x-1.noarch.rpm azureuser@52.224.50.17:/home/azureuser
+        #sudo chown root:root $(webserverKey.secureFilePath)
+        #sudo chmod a+r $(webserverKey.secureFilePath)
+        #ssh-keygen -R 52.224.50.17
+        ##scp -i $(webserverKey.secureFilePath) /gcs-app/target/rpm/RPMS/noarch/gcs-app-2.8.x-1.noarch.rpm azureuser@52.224.50.17:/home/azureuser
+        #scp -i $(webserverKey.secureFilePath) /home/vsts/work/1/s/gcs-app/target/rpm/RPMS/noarch/gcs-app-2.8.x-1.noarch.rpm #azureuser@52.224.50.17:/home/azureuser
       displayName: Deploying app to production!   
-- stage: copy_test_stage_F
+- stage: deploy_stage_E_2
   jobs:
   - job: A1
     steps:
     - task: CopyFilesOverSSH@0
       inputs:
         sshEndpoint: webserver-connection
-        #sourceFolder: /home/vsts/work/1/s/gcs-app/target/rpm/RPMS/noarch/
-        #contents: gcs-app-2.8.x-1.noarch.rpm
-        #targetFolder: /home/azureuser
+        sourceFolder: /home/vsts/
+        contents: gcs-app-2.8.x-1.noarch.rpm
+        targetFolder: /home/azureuser
         ##cleanTargetFolder: false # Optional
         ##overwrite: true # Optional
         ##failOnEmptySource: false # Optional
         ##flattenFolders: false # Optional
-- stage: ssh_commands_test_stage_G
+- stage: ssh_commands_test_stage_F
   jobs:
   - job: A1
     steps:
@@ -154,7 +131,7 @@ stages:
         inline: |
             sudo systemctl stop gcs-app
             sudo rpm -e gcs-app
-            sudo apt-get install -y java-1.8.0-openjdk-devel
+            #sudo yum install -y java-1.8.0-openjdk-devel
             sudo rpm -i gcs-app-2.8.x-1.noarch.rpm
             sudo chown -R gcs-app /usr/share/gcs-app/
             sudo chgrp -R gcs-app /usr/share/gcs-app/

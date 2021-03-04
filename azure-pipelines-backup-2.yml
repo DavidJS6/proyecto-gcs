@@ -12,15 +12,16 @@ pool:
 #container: centos:7
 
 stages:
-- stage: proyecto_gcs_master
+- stage: provisioning_stage_A
   jobs:
-  - job: Deploying
+  - job: A1
     steps:
     - bash: |
         #yum update -y
         sudo apt update -y
         
-        # Java previous position
+        #yum install -y java-1.8.0-openjdk-devel
+        sudo apt install -y openjdk-8-jdk
         
         #curl https://downloads.lightbend.com/scala/2.12.10/scala-2.12.10.rpm --output scala-2.12.10.rpm
         curl https://downloads.lightbend.com/scala/2.12.2/scala-2.12.2.deb --output scala-2.12.2.deb
@@ -45,26 +46,27 @@ stages:
         #yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo
         #yum install -y docker-ce docker-ce-cli containerd.io
         
-        #sudo apt update -y
+        sudo apt update -y
         sudo apt install -y apt-transport-https ca-certificates curl software-properties-common
         curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
         sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu focal stable"
-        #sudo apt update -y
+        sudo apt update -y
         apt-cache policy docker-ce
         sudo apt install -y docker-ce
-        
-        #yum install -y java-1.8.0-openjdk-devel
-        #sudo apt install -y openjdk-8-jdk
-        sudo apt install -y openjdk-8-jdk-headless=8u275-b01
-        
-        echo =====================================
-        java -version
-        echo =====================================
       displayName: Installing dependencies!
+- stage: build_stage_B
+  jobs:
+  - job: B1
+    displayName: initial_job
+    steps: 
     - bash: |
         #cd proyecto-gcs
         sbt compile
       displayName: Compiling project!
+- stage: test_stage_C
+  jobs:
+  - job: C1
+    steps:
     - bash: |
         sbt test
         sudo systemctl start docker
@@ -78,13 +80,22 @@ stages:
         #cd proyecto-gcs
         sbt "project gcsAppIT" test
       displayName: Testing app!
-    - bash: |
+- stage: packaging_stage_D
+  jobs:
+  -  job: D1
+     displayName: initial_job
+     steps: 
+     - bash: |
         sbt rpm:packageBin
         #sudo cp /home/vsts/work/1/s/gcs-app/target/rpm/RPMS/noarch/gcs-app-2.8.x-1.noarch.rpm /home/vsts/gcs-app-2.8.x-1.noarch.rpm
         ls
         pwd
         sudo cp gcs-app/target/rpm/RPMS/noarch/gcs-app-2.8.x-1.noarch.rpm /home/vsts/gcs-app-2.8.x-1.noarch.rpm
-      displayName: Packaging app!
+       displayName: Packaging app! 
+- stage: deploy_stage_E
+  jobs:
+  - job: A1
+    steps:
     - task: CopyFilesOverSSH@0
       inputs:
         sshEndpoint: webserver-connection
@@ -95,6 +106,10 @@ stages:
         ##overwrite: true # Optional
         ##failOnEmptySource: false # Optional
         ##flattenFolders: false # Optional
+- stage: ssh_commands_test_stage_F
+  jobs:
+  - job: A1
+    steps:
     - task: SSH@0
       inputs:
         sshEndpoint: webserver-connection

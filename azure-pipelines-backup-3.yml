@@ -17,61 +17,97 @@ stages:
   - job: Deploying
     steps:
     - bash: |
+        #yum update -y
         sudo apt update -y
         
-        curl https://downloads.lightbend.com/scala/2.12.2/scala-2.12.2.deb --output scala-2.12.2.deb
-        sudo dpkg -i scala-2.12.2.deb
+        # Java previous position
         
+        #curl https://downloads.lightbend.com/scala/2.12.10/scala-2.12.10.rpm --output scala-2.12.10.rpm
+        curl https://downloads.lightbend.com/scala/2.12.2/scala-2.12.2.deb --output scala-2.12.2.deb
+        #apt install -y scala-2.12.2.deb
+        sudo dpkg -i scala-2.12.2.deb
+        #curl https://bintray.com/sbt/rpm/rpm | tee /etc/yum.repos.d/bintray-sbt-rpm.repo
+        
+        #yum install -y sbt
         echo "deb https://dl.bintray.com/sbt/debian /" | sudo tee -a /etc/apt/sources.list.d/sbt.list
         curl -sL "https://keyserver.ubuntu.com/pks/lookup?op=get&search=0x2EE0EA64E40A89B84B2DF73499E82A75642AC823" | sudo apt-key add
         sudo apt-get update
         sudo apt-get install sbt
         
         sudo apt install -y git
+        
+        #yum install -y which
+        #yum install -y yum-utils
+        
+        #yum install -y rpm-build
         sudo apt install -y rpm
         
+        #yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo
+        #yum install -y docker-ce docker-ce-cli containerd.io
+        
+        #sudo apt update -y
         sudo apt install -y apt-transport-https ca-certificates curl software-properties-common
         curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
         sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu focal stable"
+        #sudo apt update -y
         apt-cache policy docker-ce
         sudo apt install -y docker-ce
         
+        #yum install -y java-1.8.0-openjdk-devel
+        #sudo apt install -y openjdk-8-jdk-headless=8u275-b01
         sudo apt-get purge --auto-remove openjdk*
         sudo apt install -y openjdk-8-jdk
         
         echo =====================================
         java -version
         echo =====================================
-      displayName: Dependencies Installation
+      displayName: Installing dependencies!
     - bash: |
+        #cd proyecto-gcs
         sbt compile
-      displayName: Compiling
+      displayName: Compiling project!
     - bash: |
         sbt test
-        
         sudo systemctl start docker
+        #(Estos dos comandos deben ser ejecutados en una consola a parte)
+        #nohup sudo docker run -it -e POSTGRES_PASSWORD=gcs -e POSTGRES_USER=gcs -e POSTGRES_DB=gcs -p 127.0.0.1:5432:5432  postgres:9.5
+        #timeout 90s bash -c 'until docker exec $YOUR_DOCKER_CONTAINER_NAME pg_isready ; do sleep 5 ; done'
+        #sh /proyecto-gcs/script.sh
+        #sbt "project gcsAppIT" test
         sudo docker run -d --name postgres-docker -e POSTGRES_PASSWORD=gcs -e POSTGRES_USER=gcs -e POSTGRES_DB=gcs -p 127.0.0.1:5432:5432 postgres:9.5
         sudo timeout 90s bash -c 'until docker exec postgres-docker pg_isready; do sleep 5; done'
-        
+        #cd proyecto-gcs
         sbt "project gcsAppIT" test
-      displayName: Testing
+      displayName: Testing app!
     - bash: |
         sbt rpm:packageBin
+        #sudo cp /home/vsts/work/1/s/gcs-app/target/rpm/RPMS/noarch/gcs-app-2.8.x-1.noarch.rpm /home/vsts/gcs-app-2.8.x-1.noarch.rpm
+        ls
+        pwd
         sudo cp gcs-app/target/rpm/RPMS/noarch/gcs-app-2.8.x-1.noarch.rpm /home/vsts/gcs-app-2.8.x-1.noarch.rpm
-      displayName: Binary Packaging
+      displayName: Packaging app!
     - task: CopyFilesOverSSH@0
       inputs:
         sshEndpoint: webserver-connection
         sourceFolder: /home/vsts/
         contents: gcs-app-2.8.x-1.noarch.rpm
         targetFolder: /home/azureuser
+        ##cleanTargetFolder: false # Optional
+        ##overwrite: true # Optional
+        ##failOnEmptySource: false # Optional
+        ##flattenFolders: false # Optional
     - task: SSH@0
       inputs:
         sshEndpoint: webserver-connection
+        #runOptions: 'commands' # Options: commands, script, inline
         runOptions: 'inline'
+        #commands: # Required when runOptions == Commands
+        #scriptPath: # Required when runOptions == Script
+        #inline: # Required when runOptions == Inline
         inline: |
             sudo systemctl stop gcs-app
             sudo rpm -e gcs-app
+            #sudo yum install -y java-1.8.0-openjk-devel
             sudo rpm -i gcs-app-2.8.x-1.noarch.rpm
             sudo chown -R gcs-app /usr/share/gcs-app/
             sudo chgrp -R gcs-app /usr/share/gcs-app/
@@ -79,4 +115,8 @@ stages:
             sudo systemctl start gcs-app
             sudo rm /usr/share/gcs-app/RUNNING_PID
             sudo systemctl restart gcs-app
+        #interpreterCommand: # Used when runOptions == Inline
+        #args: # Optional
+        #failOnStdErr: true # Optional
+
 

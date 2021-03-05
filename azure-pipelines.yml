@@ -71,7 +71,7 @@ stages:
         runOptions: 'inline'
         inline: |
             sudo systemctl stop gcs-app
-            sudo rpm -e gcs-app
+            sudo rpm -e gcs-app || true
             sudo rpm -i gcs-app-2.8.x-1.noarch.rpm
             sudo chown -R gcs-app /usr/share/gcs-app/
             sudo chgrp -R gcs-app /usr/share/gcs-app/

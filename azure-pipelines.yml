@@ -22,9 +22,22 @@ stages:
         runOptions: 'inline'
         inline: |
             sudo systemctl stop gcs-app
+            # sudo rpm -e gcs-app
+            # sudo rpm -e --quiet gcs-app || true
+            # sudo rpm --force -e gcs-app
+            
+            # sudo rpm --force -e gcs-app || true
+            # sudo rpm -i gcs-app-2.8.x-1.noarch.rpm
+            
+            # sudo rpm --reinstall gcs-app-2.8.x-1.noarch.rpm
+            # sudo rpm -U gcs-app-2.8.x-1.noarch.rpm
+            
             #sudo rpm -e --quiet gcs-app || true
-            sudo rpm -e gcs-app || true
+            #sudo rpm -i gcs-app-2.8.x-1.noarch.rpm
+            
+            sudo rpm -e --quiet gcs-app || true
             sudo rpm -i gcs-app-2.8.x-1.noarch.rpm
+            
             sudo chown -R gcs-app /usr/share/gcs-app/
             sudo chgrp -R gcs-app /usr/share/gcs-app/
             sudo chef-client --local-mode -j atributos.json
